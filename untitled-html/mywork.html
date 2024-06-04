@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Analytics Dashboard</title>
+    <!-- Include Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #chartsContainer {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .chartContainer {
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            width: 400px;
+        }
+
+        .chartContainer h2 {
+            margin-top: 0;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        #edaSummary {
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        #decisionStatements {
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        #decisionStatements h2 {
+            margin-top: 0;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        #decisionStatements ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+
+        #decisionStatements li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Data Analytics Dashboard</h1>
+    <input type="file" id="fileInput">
+    <button onclick="processFile()">Process File</button>
+
+    <div id="chartsContainer">
+        <div class="chartContainer">
+            <h2>Sales Trend (Line Plot)</h2>
+            <canvas id="salesChart" width="400" height="400"></canvas>
+        </div>
+        <div class="chartContainer">
+            <h2>Monthly Sales Distribution (Bar Plot)</h2>
+            <canvas id="distributionChart" width="400" height="400"></canvas>
+        </div>
+        <div class="chartContainer">
+            <h2>Exploratory Data Analysis Summary</h2>
+            <div id="edaSummary"></div>
+        </div>
+        <div class="chartContainer">
+            <h2>Product Category Distribution (Pie Chart)</h2>
+            <canvas id="categoryChart" width="400" height="400"></canvas>
+        </div>
+        <div class="chartContainer">
+            <h2>Sales Trend (Stem Plot)</h2>
+            <canvas id="stemChart" width="400" height="400"></canvas>
+        </div>
+        <div class="chartContainer">
+            <h2>Sales Trend (Step Plot)</h2>
+            <canvas id="stepChart" width="400" height="400"></canvas>
+        </div>
+    </div>
+
+    <div id="decisionStatements">
+        <h2>Decision Statements</h2>
+        <ul>
+            <li>Based on the sales trend, we observe a steady increase in sales over the past few months.</li>
+            <li>The monthly sales distribution indicates that February had the highest sales volume.</li>
+            <li>The exploratory data analysis summary reveals that the average sales value is higher than expected.</li>
+            <li>Product category distribution shows that Electronics constitute the highest proportion of sales.</li>
+            <li>The stem plot visualizes the sales data distribution more granularly.</li>
+            <li>The step plot highlights any abrupt changes in sales over time.</li>
+        </ul>
+    </div>
+
+    <script>
+        // Function to process uploaded file
+        function processFile() {
+            var fileInput = document.getElementById('fileInput');
+            var file = fileInput.files[0];
+            
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function(event) {
+                    var contents = event.target.result;
+                    var salesData = parseData(contents);
+                    updateDashboard(salesData);
+                };
+                reader.readAsText(file);
+            } else {
+                alert("Please select a file.");
+            }
+        }
+
+        // Function to parse CSV data
+        function parseData(csvData) {
+            // Parse CSV data and return an array of sales data
+            // This is just a simple example, you may need to adjust this based on your CSV format
+            var lines = csvData.split('\n');
+            var salesData = [];
+            for (var i = 1; i < lines.length; i++) {
+                var parts = lines[i].split(',');
+                salesData.push(parseFloat(parts[1])); // Assuming the second column contains sales data
+            }
+            return salesData;
+        }
+
+        // Function to update dashboard with parsed data
+        function updateDashboard(salesData) {
+            updateSalesChart(salesData);
+            updateDistributionChart(salesData);
+            updateEDA(salesData);
+            updateCategoryChart();
+            updateStemChart(salesData);
+            updateStepChart(salesData);
+        }
+
+        // Function to update sales trend chart
+        function updateSalesChart(salesData) {
+            var ctx = document.getElementById('salesChart').getContext('2d');
+            var myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({ length: salesData.length }, (_, i) => (i + 1).toString()), // Generate labels dynamically
+                    datasets: [{
+                        label: 'Sales',
+                        backgroundColor: 'blue',
+                        borderColor: 'blue',
+                        data: salesData
+                    }]
+                },
+                options: {}
+            });
+        }
+
+        // Function to update monthly sales distribution chart
+        function updateDistributionChart(salesData) {
+            var ctx = document.getElementById('distributionChart').getContext('2d');
+            var myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['January', 'February', 'March', 'April', 'May'], // Assuming 5 months of data
+                    datasets: [{
+                        label: 'Monthly Sales',
+                        backgroundColor: 'green',
+                        borderColor: 'green',
+                        data: salesData // Assuming sales data contains monthly sales
+                    }]
+                },
+                options: {}
+            });
+        }
+
+        // Function to calculate and display EDA summary statistics
+        function updateEDA(salesData) {
+            var sum = salesData.reduce((acc, val) => acc + val, 0);
+            var mean = sum / salesData.length;
+            var max = Math.max(...salesData);
+            var min = Math.min(...salesData);
+
+            var edaSummary = document.getElementById('edaSummary');
+            edaSummary.innerHTML = `
+                <p><strong>Summary Statistics:</strong></p>
+                <p>Total Sales: ${sum}</p>
+                <p>Mean Sales: ${mean}</p>
+                <p>Max Sales: ${max}</p>
+                <p>Min Sales: ${min}</p>
+            `;
+        }
+
+        // Function to update product category distribution chart (example)
+        function updateCategoryChart() {
+            var ctx = document.getElementById('categoryChart').getContext('2d');
+            var myChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Electronics', 'Clothing', 'Books', 'Home Goods'],
+                    datasets: [{
+                        label: 'Category Distribution',
+                        backgroundColor: ['blue', 'green', 'orange', 'purple'],
+                        data: [30, 25, 20, 25] // Example data for demonstration
+                    }]
+                },
+                options: {}
+            });
+        }
+
+        // Function to update stem plot
+        function updateStemChart(salesData) {
+            var ctx = document.getElementById('stemChart').getContext('2d');
+            var myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({ length: salesData.length }, (_, i) => (i + 1).toString()), // Generate labels dynamically
+                    datasets: [{
+                        label: 'Stem Plot',
+                        backgroundColor: 'red',
+                        borderColor: 'red',
+                        data: salesData
+                    }]
+                },
+                options: {}
+            });
+        }
+
+        // Function to update step plot
+        function updateStepChart(salesData) {
+            var ctx = document.getElementById('stepChart').getContext('2d');
+            var myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({ length: salesData.length }, (_, i) => (i + 1).toString()), // Generate labels dynamically
+                    datasets: [{
+                        label: 'Step Plot',
+                        backgroundColor: 'orange',
+                        borderColor: 'orange',
+                        data: salesData
+                    }]
+                },
+                options: {}
+            });
+        }
+    </script>
+</body>
+</html>
